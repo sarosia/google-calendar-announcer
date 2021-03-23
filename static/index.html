@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>Announce class</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <script src="app.js"></script>
+    <style>
+* {
+  font-family: "Roboto";
+  font-size: 24px;
+}
+
+.container {
+  border-radius: 20px;
+  border: 5px solid #aaa;
+  padding: 20px;
+  margin: 20px;
+}
+
+input {
+  width: 100%;
+}
+
+table, th, td {
+  border: 3px solid #aaa;
+  border-collapse: collapse;
+  padding: 5px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <p><input type="text" id="text"></input></p>
+      <p><button type="button" id="boardcast">Boardcast</button></p>
+    </div>
+    <div class="container">
+      Upcoming events:
+      <table>
+        <th width=450>Time</th>
+        <th>Event</th>
+        <tbody id="upcoming">
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

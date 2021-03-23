@@ -1,0 +1,34 @@
+{
+  "name": "google-calendar-announcer",
+  "version": "1.0.0",
+  "description": "Make announcement on devices using Google Cast for events in Google Calendar.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint static lib test --fix",
+    "start": "node index.js",
+    "test": "mocha --reporter spec --bail --check-leaks test/"
+  },
+  "author": "sarosia",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^7.17.0",
+    "eslint-config-google": "^0.14.0",
+    "mocha": "^8.2.1"
+  },
+  "dependencies": {
+    "@google-cloud/text-to-speech": "^3.1.3",
+    "castv2-client": "^1.2.0",
+    "castv2-promise": "^1.0.0",
+    "express": "^4.17.1",
+    "googleapis": "^67.0.0",
+    "heapset": "^1.0.0",
+    "ip": "^1.1.5",
+    "node-dns-sd": "^0.4.2",
+    "rc": "^1.2.8",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.0"
+  }
+}
