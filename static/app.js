@@ -1,35 +1,30 @@
-function $(id) {
-  return document.getElementById(id);
-}
+import e from './e.js';
 
 async function boardcast() {
-  const text = $('text').value;
-  $('boardcast').disabled = true;
-  $('boardcast').innerHTML = 'Boardcasting...';
+  const text = e('text').value;
+  e('boardcast').disabled = true;
+  e('boardcast').innerHTML = 'Boardcasting...';
   await fetch(`/boardcast?text=${text}`);
-  $('boardcast').innerHTML = 'Boardcast';
-  $('boardcast').disabled = false;
+  e('boardcast').innerHTML = 'Boardcast';
+  e('boardcast').disabled = false;
 }
 
 async function loadEvents() {
   const res = await fetch('events');
   const json = await res.json();
-  $('upcoming').innerHTML = '';
-  json.map((event) => ({
+  e('upcoming', {}, json.map((event) => ({
     'startTime': new Date(event.startTime),
     'endTime': new Date(event.endTime),
     'name': event.name,
-  })).sort((a, b) => a.startTime - b.startTime).
-      slice(0, 10).
-      forEach((event) => {
-        const p = document.createElement('tr');
-        // eslint-disable-next-line max-len
-        p.innerHTML = `<td>${event.startTime.toLocaleDateString()} ${event.startTime.toLocaleTimeString()} - ${event.endTime.toLocaleTimeString()}</td><td>${event.name}</td>`;
-        $('upcoming').appendChild(p);
-      });
+  })).sort((a, b) => a.startTime - b.startTime).slice(0, 10).map((event) =>
+    ['tr', {}, [
+      ['td', {}, `${event.startTime.toLocaleDateString()} ${event.startTime.toLocaleTimeString()} - ${event.endTime.toLocaleTimeString()}`],
+      ['td', {}, event.name],
+    ]]
+  ));
 }
 
 window.onload = async function() {
-  $('boardcast').onclick = boardcast;
+  e('boardcast').onclick = boardcast;
   await loadEvents();
 };
