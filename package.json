@@ -4,7 +4,7 @@
   "description": "Make announcement on devices using Google Cast for events in Google Calendar.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint static lib test --fix",
+    "lint": "eslint static lib test",
     "start": "node index.js",
     "test": "mocha --reporter spec --bail --check-leaks test/"
   },

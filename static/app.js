@@ -9,6 +9,14 @@ async function boardcast() {
   e('boardcast').disabled = false;
 }
 
+function formatEventDateTime(event) {
+  const date = event.startTime.toLocaleDateString();
+  const startTime = event.startTime.toLocaleTimeString();
+  const endTime = event.endTime.toLocaleTimeString();
+
+  return `${date} ${startTime} - ${endTime}`;
+}
+
 async function loadEvents() {
   const res = await fetch('events');
   const json = await res.json();
@@ -18,9 +26,9 @@ async function loadEvents() {
     'name': event.name,
   })).sort((a, b) => a.startTime - b.startTime).slice(0, 10).map((event) =>
     ['tr', {}, [
-      ['td', {}, `${event.startTime.toLocaleDateString()} ${event.startTime.toLocaleTimeString()} - ${event.endTime.toLocaleTimeString()}`],
+      ['td', {}, formatEventDateTime(event)],
       ['td', {}, event.name],
-    ]]
+    ]],
   ));
 }
 
