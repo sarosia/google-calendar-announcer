@@ -24,12 +24,13 @@ async function loadEvents() {
     'startTime': new Date(event.startTime),
     'endTime': new Date(event.endTime),
     'name': event.name,
-  })).sort((a, b) => a.startTime - b.startTime).slice(0, 10).map((event) =>
-    ['tr', {}, [
+  })).sort((a, b) => a.startTime - b.startTime).slice(0, 10).map((event) => [
+    'tr', {},
+    [
       ['td', {}, formatEventDateTime(event)],
       ['td', {}, event.name],
-    ]],
-  ));
+    ],
+  ]));
 }
 
 window.onload = async function() {

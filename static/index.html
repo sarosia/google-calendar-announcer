@@ -1,34 +1,37 @@
 <html>
-  <head>
-    <title>Google Calendar Announcer</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
-    <link href='main.css' rel='stylesheet' type='text/css'>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/uikit.min.css" />
-    <script src="js/uikit.min.js"></script>
-    <script src="js/uikit-icons.min.js"></script>
-    <script type="module" src="app.js"></script>
-  </head>
-  <body>
-    <h1 class="uk-heading-bullet">Google Calendar Announcer</h1>
-    <div class="uk-container uk-container-center uk-margin">
-      <textarea class="uk-textarea uk-margin" type="text" id="text"></textarea>
-      <button class="uk-button uk-button-default" id="boardcast">Boardcast</button>
-    </div>
-    <div class="uk-container uk-container-center uk-margin">
-      <table class="uk-margin uk-table uk-table-striped">
-        <caption>Upcoming events:</caption>
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Event</th>
-          </tr>
-        </thead>
-        <tbody id="upcoming">
-        </tbody>
-      </table>
-    </div>
-  </body>
+
+<head>
+  <title>Google Calendar Announcer</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
+  <link href='main.css' rel='stylesheet' type='text/css'>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/uikit.min.css" />
+  <script src="js/uikit.min.js"></script>
+  <script src="js/uikit-icons.min.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+
+<body>
+  <h1 class="uk-heading-bullet">Google Calendar Announcer</h1>
+  <div class="uk-container uk-container-center uk-margin">
+    <textarea class="uk-textarea uk-margin" type="text" id="text"></textarea>
+    <button class="uk-button uk-button-default" id="boardcast">Boardcast</button>
+  </div>
+  <div class="uk-container uk-container-center uk-margin">
+    <table class="uk-margin uk-table uk-table-striped">
+      <caption>Upcoming events:</caption>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Event</th>
+        </tr>
+      </thead>
+      <tbody id="upcoming">
+      </tbody>
+    </table>
+  </div>
+</body>
+
 </html>
