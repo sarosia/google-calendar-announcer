@@ -1,18 +1,18 @@
 module.exports = {
-  'env': {
-    'browser': true,
-    'commonjs': true,
-    'es2021': true,
-    'node': true,
+  env: {
+    browser: true,
+    commonjs: true,
+    es2021: true,
+    node: true,
   },
-  'extends': [
-    'google',
-  ],
-  'parserOptions': {
-    'ecmaVersion': 12,
+  extends: ['google', 'prettier'],
+  parserOptions: {
+    ecmaVersion: 12,
   },
-  'rules': {
+  rules: {
     'require-jsdoc': 0,
+    'prettier/prettier': 'error',
   },
-  'parser': 'babel-eslint',
+  parser: 'babel-eslint',
+  plugins: ['prettier'],
 };

@@ -20,20 +20,29 @@ function formatEventDateTime(event) {
 async function loadEvents() {
   const res = await fetch('events');
   const json = await res.json();
-  e('upcoming', {}, json.map((event) => ({
-    'startTime': new Date(event.startTime),
-    'endTime': new Date(event.endTime),
-    'name': event.name,
-  })).sort((a, b) => a.startTime - b.startTime).slice(0, 10).map((event) => [
-    'tr', {},
-    [
-      ['td', {}, formatEventDateTime(event)],
-      ['td', {}, event.name],
-    ],
-  ]));
+  e(
+    'upcoming',
+    {},
+    json
+      .map((event) => ({
+        startTime: new Date(event.startTime),
+        endTime: new Date(event.endTime),
+        name: event.name,
+      }))
+      .sort((a, b) => a.startTime - b.startTime)
+      .slice(0, 10)
+      .map((event) => [
+        'tr',
+        {},
+        [
+          ['td', {}, formatEventDateTime(event)],
+          ['td', {}, event.name],
+        ],
+      ])
+  );
 }
 
-window.onload = async function() {
+window.onload = async function () {
   e('boardcast').onclick = boardcast;
   await loadEvents();
 };

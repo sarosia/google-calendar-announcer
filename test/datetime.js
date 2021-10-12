@@ -1,6 +1,6 @@
 const DateTime = require('../lib/datetime');
-const {Duration, Minutes} = require('../lib/duration');
-const {expect} = require('chai');
+const { Duration, Minutes } = require('../lib/duration');
+const { expect } = require('chai');
 
 describe('DateTime', () => {
   it('Add', () => {
@@ -11,8 +11,7 @@ describe('DateTime', () => {
     expect(datetime.toString()).equal('1970-01-01T00:10:01.000Z');
 
     expect(() => {
-      datetime.add(new DateTime(1000),
-      );
+      datetime.add(new DateTime(1000));
     }).throw('Cannot add a DateTime to a DateTime.');
   });
 

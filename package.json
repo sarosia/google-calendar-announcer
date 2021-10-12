@@ -4,7 +4,7 @@
   "description": "Make announcement on devices using Google Cast for events in Google Calendar.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint static lib test",
+    "lint": "eslint .",
     "start": "node index.js",
     "test": "mocha --reporter spec --bail --check-leaks test/"
   },
@@ -16,7 +16,10 @@
     "chai-as-promised": "^7.1.1",
     "eslint": "^7.17.0",
     "eslint-config-google": "^0.14.0",
-    "mocha": "^8.2.1"
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "mocha": "^8.2.1",
+    "prettier": "^2.4.1"
   },
   "dependencies": {
     "@google-cloud/text-to-speech": "^3.1.3",
