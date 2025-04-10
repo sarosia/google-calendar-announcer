@@ -18,7 +18,7 @@
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "mocha": "^10.2.0",
+    "mocha": "^10.8.2",
     "prettier": "^2.4.1"
   },
   "dependencies": {
@@ -26,7 +26,7 @@
     "@sarosia/e": "^1.0.0",
     "castv2-client": "^1.2.0",
     "castv2-promise": "^1.0.0",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "googleapis": "^67.0.0",
     "heapset": "^1.0.0",
     "ip": "^1.1.9",
