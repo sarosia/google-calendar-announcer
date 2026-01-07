@@ -25,7 +25,7 @@
     "@google-cloud/text-to-speech": "^5.3.0",
     "@sarosia/e": "^1.0.0",
     "castv2-promise": "^1.0.2",
-    "express": "^4.21.2",
+    "express": "^4.22.1",
     "googleapis": "^67.0.0",
     "heapset": "^1.0.0",
     "ip": "^1.1.9",
