@@ -64,7 +64,7 @@ require.cache[ttsPath] = {
 
 // Stub castv2-promise in require.cache
 const castv2Path = require.resolve('castv2-promise');
-let findCalledWith = null;
+const findCalledWith = [];
 const deviceCalls = {
   getVolume: 0,
   setVolume: [],
@@ -78,7 +78,7 @@ require.cache[castv2Path] = {
   loaded: true,
   exports: {
     find: async (name) => {
-      findCalledWith = name;
+      findCalledWith.push(name);
       return {
         getVolume: async () => {
           deviceCalls.getVolume++;
@@ -134,7 +134,7 @@ describe('Calendar Announcement Unit Tests', () => {
     mockNowValue = null;
     sleepMock = null;
     ttsCalledWith = null;
-    findCalledWith = null;
+    findCalledWith.length = 0; // Clear the array
     deviceCalls.getVolume = 0;
     deviceCalls.setVolume = [];
     deviceCalls.play = [];
@@ -233,7 +233,7 @@ describe('Calendar Announcement Unit Tests', () => {
       Calendar.prototype.startFetch = originalStartFetch;
     });
 
-    it('should poll events and trigger the boardcaster, interacting with CastClient', async () => {
+    it('should poll events and trigger the boardcaster, interacting with multiple CastClients', async () => {
       // Mock the sleep function to throw STOP_LOOP error on 1s sleep.
       // This will break the infinite loop in pollEvent() after one iteration.
       sleepMock = async (d) => {
@@ -245,7 +245,7 @@ describe('Calendar Announcement Unit Tests', () => {
 
       const mockConfig = {
         port: 8080,
-        devices: ['living-room-speaker'],
+        devices: ['living-room-speaker', 'kitchen-speaker'],
         calendars: [
           {
             calendarId: 'test-calendar-id',
@@ -297,17 +297,28 @@ describe('Calendar Announcement Unit Tests', () => {
       // Verify that Boardcaster was called with the correct text
       expect(ttsCalledWith).to.equal('Approaching Event');
 
-      // Verify that Boardcaster queried the correct device
-      expect(findCalledWith).to.equal('living-room-speaker');
+      // Verify that Boardcaster queried all devices in the config
+      expect(findCalledWith).to.deep.equal([
+        'living-room-speaker',
+        'kitchen-speaker',
+      ]);
 
-      // Verify that Boardcaster controlled the device volume and played the audio
-      expect(deviceCalls.getVolume).to.equal(1);
-      expect(deviceCalls.setVolume).to.deep.equal([1, 0.5]);
-      expect(deviceCalls.play).to.have.lengthOf(1);
+      // Verify that Boardcaster controlled the device volume and played the audio for all devices
+      expect(deviceCalls.getVolume).to.equal(2);
+      expect(deviceCalls.setVolume).to.have.lengthOf(4);
+      expect(deviceCalls.setVolume.filter((v) => v === 1)).to.have.lengthOf(2);
+      expect(deviceCalls.setVolume.filter((v) => v === 0.5)).to.have.lengthOf(
+        2
+      );
+
+      expect(deviceCalls.play).to.have.lengthOf(2);
       expect(deviceCalls.play[0]).to.match(
         /^http:\/\/\d+\.\d+\.\d+\.\d+:8080\/audio$/
       );
-      expect(deviceCalls.close).to.equal(1);
+      expect(deviceCalls.play[1]).to.match(
+        /^http:\/\/\d+\.\d+\.\d+\.\d+:8080\/audio$/
+      );
+      expect(deviceCalls.close).to.equal(2);
     });
   });
 });
