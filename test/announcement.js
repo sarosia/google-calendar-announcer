@@ -24,7 +24,7 @@ logger.transports.forEach((t) => {
   t.silent = true;
 });
 
-// Stub googleapis before requiring calendar.js
+// Stub googleapis
 let mockEventsList = () => {};
 
 google.auth = {
@@ -49,8 +49,58 @@ google.calendar = (version) => {
   throw new Error(`Unsupported API version: ${version}`);
 };
 
-// Now we can require Calendar and CalendarManager
+// Stub tts.js in require.cache
+const ttsPath = require.resolve('../lib/tts');
+let ttsCalledWith = null;
+require.cache[ttsPath] = {
+  id: ttsPath,
+  filename: ttsPath,
+  loaded: true,
+  exports: async (text) => {
+    ttsCalledWith = text;
+    return Buffer.from('mock-audio-content');
+  },
+};
+
+// Stub castv2-promise in require.cache
+const castv2Path = require.resolve('castv2-promise');
+let findCalledWith = null;
+const deviceCalls = {
+  getVolume: 0,
+  setVolume: [],
+  play: [],
+  close: 0,
+};
+
+require.cache[castv2Path] = {
+  id: castv2Path,
+  filename: castv2Path,
+  loaded: true,
+  exports: {
+    find: async (name) => {
+      findCalledWith = name;
+      return {
+        getVolume: async () => {
+          deviceCalls.getVolume++;
+          return 0.5;
+        },
+        setVolume: async (vol) => {
+          deviceCalls.setVolume.push(vol);
+        },
+        play: async (url) => {
+          deviceCalls.play.push(url);
+        },
+        close: async () => {
+          deviceCalls.close++;
+        },
+      };
+    },
+  },
+};
+
+// Now we can require Calendar, Boardcaster, and CalendarManager
 const Calendar = require('../lib/calendar');
+const Boardcaster = require('../lib/boardcaster');
 const CalendarManager = require('../lib/calendar_manager');
 
 describe('Calendar Announcement Unit Tests', () => {
@@ -74,11 +124,21 @@ describe('Calendar Announcement Unit Tests', () => {
     google.calendar = originalCalendar;
     google.auth = originalAuth;
     google.options = originalOptions;
+
+    // Clean up require cache
+    delete require.cache[ttsPath];
+    delete require.cache[castv2Path];
   });
 
   beforeEach(() => {
     mockNowValue = null;
     sleepMock = null;
+    ttsCalledWith = null;
+    findCalledWith = null;
+    deviceCalls.getVolume = 0;
+    deviceCalls.setVolume = [];
+    deviceCalls.play = [];
+    deviceCalls.close = 0;
   });
 
   afterEach(() => {
@@ -158,7 +218,7 @@ describe('Calendar Announcement Unit Tests', () => {
     });
   });
 
-  describe('CalendarManager Class', () => {
+  describe('CalendarManager Class (with real Boardcaster)', () => {
     let originalStartFetch;
 
     before(() => {
@@ -173,7 +233,7 @@ describe('Calendar Announcement Unit Tests', () => {
       Calendar.prototype.startFetch = originalStartFetch;
     });
 
-    it('should poll events and trigger the boardcaster', async () => {
+    it('should poll events and trigger the boardcaster, interacting with CastClient', async () => {
       // Mock the sleep function to throw STOP_LOOP error on 1s sleep.
       // This will break the infinite loop in pollEvent() after one iteration.
       sleepMock = async (d) => {
@@ -184,6 +244,8 @@ describe('Calendar Announcement Unit Tests', () => {
       };
 
       const mockConfig = {
+        port: 8080,
+        devices: ['living-room-speaker'],
         calendars: [
           {
             calendarId: 'test-calendar-id',
@@ -193,14 +255,8 @@ describe('Calendar Announcement Unit Tests', () => {
         ],
       };
 
-      const announcedEvents = [];
-      const mockBoardcaster = {
-        boardcast: async (text) => {
-          announcedEvents.push(text);
-        },
-      };
-
-      const calendarManager = new CalendarManager(mockConfig, mockBoardcaster);
+      const boardcaster = new Boardcaster(mockConfig);
+      const calendarManager = new CalendarManager(mockConfig, boardcaster);
 
       // Mock google calendar events list response
       mockEventsList = async () => {
@@ -238,8 +294,20 @@ describe('Calendar Announcement Unit Tests', () => {
         expect(e.message).to.equal('STOP_LOOP');
       }
 
-      // Verify that the event was broadcasted
-      expect(announcedEvents).to.deep.equal(['Approaching Event']);
+      // Verify that Boardcaster was called with the correct text
+      expect(ttsCalledWith).to.equal('Approaching Event');
+
+      // Verify that Boardcaster queried the correct device
+      expect(findCalledWith).to.equal('living-room-speaker');
+
+      // Verify that Boardcaster controlled the device volume and played the audio
+      expect(deviceCalls.getVolume).to.equal(1);
+      expect(deviceCalls.setVolume).to.deep.equal([1, 0.5]);
+      expect(deviceCalls.play).to.have.lengthOf(1);
+      expect(deviceCalls.play[0]).to.match(
+        /^http:\/\/\d+\.\d+\.\d+\.\d+:8080\/audio$/
+      );
+      expect(deviceCalls.close).to.equal(1);
     });
   });
 });
