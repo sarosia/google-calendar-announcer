@@ -320,5 +320,81 @@ describe('Calendar Announcement Unit Tests', () => {
       );
       expect(deviceCalls.close).to.equal(2);
     });
+
+    it('should only announce to matching target_devices if specified in calendar config', async () => {
+      // Mock the sleep function to throw STOP_LOOP error on 1s sleep.
+      sleepMock = async (d) => {
+        if (d && d.toMillis && d.toMillis() === 1000) {
+          throw new Error('STOP_LOOP');
+        }
+        return originalSleep(d);
+      };
+
+      const mockConfig = {
+        port: 8080,
+        devices: ['living-room-speaker', 'kitchen-speaker'],
+        calendars: [
+          {
+            calendarId: 'test-calendar-id',
+            announceBefore: '10m',
+            syncFrequency: '5m',
+            target_devices: ['kitchen-speaker'],
+          },
+        ],
+      };
+
+      const boardcaster = new Boardcaster(mockConfig);
+      const calendarManager = new CalendarManager(mockConfig, boardcaster);
+
+      // Mock google calendar events list response
+      mockEventsList = async () => {
+        return {
+          data: {
+            items: [
+              {
+                id: 'event-1',
+                summary: 'Approaching Event',
+                description: 'This is starting soon',
+                start: { dateTime: '2026-07-19T12:08:00.000Z' },
+                end: { dateTime: '2026-07-19T13:00:00.000Z' },
+              },
+            ],
+          },
+        };
+      };
+
+      // Set time to 11:55:00 UTC
+      mockNowValue = '2026-07-19T11:55:00.000Z';
+
+      // Fetch events so they are loaded into the calendar
+      calendarManager.fetchCalendar();
+      // Wait for asynchronous fetches to resolve
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Advance time to 11:59:00 UTC (after the 11:58:00 approach time)
+      mockNowValue = '2026-07-19T11:59:00.000Z';
+
+      // Run pollEvent
+      try {
+        await calendarManager.pollEvent();
+      } catch (e) {
+        expect(e.message).to.equal('STOP_LOOP');
+      }
+
+      // Verify that Boardcaster was called with the correct text
+      expect(ttsCalledWith).to.equal('Approaching Event');
+
+      // Verify that Boardcaster only queried kitchen-speaker (not living-room-speaker)
+      expect(findCalledWith).to.deep.equal(['kitchen-speaker']);
+
+      // Verify that Boardcaster controlled the device volume and played the audio for exactly 1 device
+      expect(deviceCalls.getVolume).to.equal(1);
+      expect(deviceCalls.setVolume).to.deep.equal([1, 0.5]);
+      expect(deviceCalls.play).to.have.lengthOf(1);
+      expect(deviceCalls.play[0]).to.match(
+        /^http:\/\/\d+\.\d+\.\d+\.\d+:8080\/audio$/
+      );
+      expect(deviceCalls.close).to.equal(1);
+    });
   });
 });
