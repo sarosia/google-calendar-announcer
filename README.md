@@ -35,9 +35,18 @@ Add a `.announcerrc` config under `$HOME`.
       "announceBefore": "30s",
       "calendarId": "my.calendar.3@gmail.com"
     }
-  ]
+  ],
+  "auth": {
+    "enabled": true,
+    "clientId": "<google-client-id>",
+    "clientSecret": "<google-client-secret>",
+    "allowedEmails": ["user@gmail.com"]
+  }
 }
 ```
+
+Google SSO credentials can also be provided using environment variables:
+`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `SESSION_SECRET`.
 
 The run the following command at the git repository.
 

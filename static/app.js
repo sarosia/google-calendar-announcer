@@ -4,9 +4,16 @@ async function boardcast() {
   const text = e('text').value;
   e('boardcast').disabled = true;
   e('boardcast').innerHTML = 'Boardcasting...';
-  await fetch(`/boardcast?text=${text}`);
-  e('boardcast').innerHTML = 'Boardcast';
-  e('boardcast').disabled = false;
+  try {
+    const res = await fetch(`/boardcast?text=${encodeURIComponent(text)}`);
+    if (res.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
+  } finally {
+    e('boardcast').innerHTML = 'Boardcast';
+    e('boardcast').disabled = false;
+  }
 }
 
 function formatEventDateTime(event) {
@@ -19,6 +26,10 @@ function formatEventDateTime(event) {
 
 async function loadEvents() {
   const res = await fetch('events');
+  if (res.status === 401) {
+    window.location.href = '/login';
+    return;
+  }
   const json = await res.json();
   e(
     'upcoming',

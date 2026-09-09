@@ -18,12 +18,6 @@ duration.sleep = async (d) => {
   return originalSleep(d);
 };
 
-// Silence the logger for clean test runs
-const logger = require('../lib/logger');
-logger.transports.forEach((t) => {
-  t.silent = true;
-});
-
 // Stub googleapis
 let mockEventsList = () => {};
 
