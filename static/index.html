@@ -1,24 +1,18 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
+    <meta charset="utf-8" />
     <title>Google Calendar Announcer</title>
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto"
-      rel="stylesheet"
-      type="text/css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto+Mono"
-      rel="stylesheet"
-      type="text/css"
-    />
-    <link href="main.css" rel="stylesheet" type="text/css" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/uikit.min.css" />
     <link rel="stylesheet" href="apper-auth.css" />
+    <link rel="stylesheet" href="main.css" />
     <script src="js/uikit.min.js"></script>
     <script src="js/uikit-icons.min.js"></script>
     <script src="apper-auth.js"></script>
@@ -26,33 +20,126 @@
   </head>
 
   <body>
-    <div class="uk-container uk-container-center uk-margin-top">
-      <header class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
-        <h1 class="uk-heading-bullet uk-margin-remove">
-          Google Calendar Announcer
-        </h1>
-        <div id="user-profile"></div>
+    <div
+      class="uk-container uk-container-expand uk-margin-top uk-margin-large-bottom app-main-container"
+    >
+      <!-- Top Header Bar with Title on left, Login profile on top right -->
+      <header class="app-header uk-flex uk-flex-between uk-flex-middle">
+        <div class="uk-flex uk-flex-middle">
+          <h1 class="uk-heading-bullet page-title uk-margin-remove">
+            Google Calendar Announcer
+          </h1>
+        </div>
+        <div class="uk-flex uk-flex-middle" id="user-profile"></div>
       </header>
-    </div>
-    <div class="uk-container uk-container-center uk-margin">
-      <textarea class="uk-textarea uk-margin" type="text" id="text"></textarea>
-      <button class="uk-button uk-button-default" id="boardcast">
-        Boardcast
-      </button>
-    </div>
-    <div class="uk-container uk-container-center uk-margin">
-      <table class="uk-margin uk-table uk-table-striped">
-        <caption>
-          Upcoming events:
-        </caption>
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Event</th>
-          </tr>
-        </thead>
-        <tbody id="upcoming"></tbody>
-      </table>
+
+      <!-- SECTION 1: BROADCAST TTS ANNOUNCEMENT -->
+      <div class="table-card uk-margin-bottom">
+        <div class="toolbar-container uk-margin-small-bottom">
+          <div class="toolbar-left uk-flex uk-flex-middle">
+            <h3 class="card-title uk-margin-remove">
+              <span
+                uk-icon="icon: receiver; ratio: 0.9"
+                class="uk-margin-small-right"
+              ></span
+              >Broadcast Announcement
+            </h3>
+            <span class="status-indicator" id="broadcast-status">Ready</span>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <textarea
+            class="uk-textarea announcement-textarea"
+            rows="3"
+            id="text"
+            placeholder="Type a message to announce on Google Cast speakers..."
+          ></textarea>
+        </div>
+        <div class="broadcast-actions uk-margin-small-top">
+          <div class="broadcast-hint">
+            Announces immediately on connected Google Cast devices using Google
+            Cloud Text-to-Speech.
+          </div>
+          <button
+            class="uk-button uk-button-primary uk-button-small btn-action-primary"
+            id="boardcast"
+          >
+            <span
+              uk-icon="icon: play; ratio: 0.8"
+              class="uk-margin-small-right"
+            ></span
+            >Broadcast
+          </button>
+        </div>
+      </div>
+
+      <!-- SECTION 2: UPCOMING EVENTS VIEW -->
+      <div class="table-card">
+        <div class="toolbar-container uk-margin-bottom">
+          <div class="toolbar-left uk-flex uk-flex-middle">
+            <h3 class="card-title uk-margin-remove">
+              <span
+                uk-icon="icon: calendar; ratio: 0.9"
+                class="uk-margin-small-right"
+              ></span
+              >Upcoming Events
+              <span class="uk-badge uk-margin-small-left" id="badge-events-count"
+                >0</span
+              >
+            </h3>
+            <button
+              class="uk-button uk-button-default uk-button-small sync-button uk-margin-left"
+              id="refresh-events"
+            >
+              <span
+                uk-icon="icon: refresh; ratio: 0.8"
+                class="uk-margin-small-right"
+              ></span
+              >Refresh
+            </button>
+            <span class="status-indicator" id="status-text"
+              >Loading events...</span
+            >
+          </div>
+          <div class="toolbar-right uk-flex uk-flex-middle">
+            <div class="filter-item search-item uk-inline">
+              <span
+                class="uk-form-icon uk-form-icon-flip"
+                uk-icon="icon: search; ratio: 0.8"
+              ></span>
+              <input
+                class="uk-input uk-form-small"
+                type="text"
+                id="search-input"
+                placeholder="Search events..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="uk-overflow-auto">
+          <table
+            class="uk-table uk-table-divider uk-table-striped uk-table-hover uk-table-middle responsive-events-table"
+          >
+            <thead>
+              <tr>
+                <th style="width: 240px; min-width: 220px;">Time</th>
+                <th>Event</th>
+              </tr>
+            </thead>
+            <tbody id="upcoming">
+              <tr class="empty-table-row">
+                <td
+                  colspan="2"
+                  class="uk-text-center uk-text-muted uk-padding empty-table-cell"
+                >
+                  Loading events...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </body>
 </html>
