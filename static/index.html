@@ -102,6 +102,11 @@
             >
           </div>
           <div class="toolbar-right uk-flex uk-flex-middle">
+            <div class="filter-item">
+              <select class="uk-select uk-form-small" id="calendar-select">
+                <option value="">All Calendars</option>
+              </select>
+            </div>
             <div class="filter-item search-item uk-inline">
               <span
                 class="uk-form-icon uk-form-icon-flip"
@@ -123,14 +128,15 @@
           >
             <thead>
               <tr>
-                <th style="width: 240px; min-width: 220px;">Time</th>
+                <th style="width: 220px; min-width: 200px;">Time</th>
+                <th style="width: 170px; min-width: 150px;">Calendar</th>
                 <th>Event</th>
               </tr>
             </thead>
             <tbody id="upcoming">
               <tr class="empty-table-row">
                 <td
-                  colspan="2"
+                  colspan="3"
                   class="uk-text-center uk-text-muted uk-padding empty-table-cell"
                 >
                   Loading events...

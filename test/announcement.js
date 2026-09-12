@@ -188,6 +188,8 @@ describe('Calendar Announcement Unit Tests', () => {
       expect(events).to.have.lengthOf(1);
       expect(events[0].getId()).to.equal('event-1');
       expect(events[0].getName()).to.equal('Future Event A');
+      expect(events[0].getCalendarId()).to.equal('test-calendar-id');
+      expect(events[0].toJson().calendarId).to.equal('test-calendar-id');
 
       // Since time is still 12:00:00, and Event A starts at 12:15:00,
       // the announcement time (12:05:00) has not been reached yet.

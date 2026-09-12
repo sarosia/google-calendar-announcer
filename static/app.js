@@ -2,7 +2,27 @@ import e from './e.js';
 
 let allEvents = [];
 let searchFilter = '';
+let selectedCalendar = '';
 let debounceTimer = null;
+
+const CALENDAR_COLORS = [
+  'source-tag-blue',
+  'source-tag-green',
+  'source-tag-purple',
+  'source-tag-amber',
+  'source-tag-rose',
+];
+
+function getCalendarTagClass(name) {
+  if (!name) return 'source-tag source-tag-default';
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash << 5) - hash + name.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % CALENDAR_COLORS.length;
+  return `source-tag ${CALENDAR_COLORS[idx]}`;
+}
 
 function formatDate(d, includeYear = false) {
   const options = {
@@ -77,14 +97,52 @@ function formatEventDateTime(event) {
   return `${dateStr} ${startTimeStr} - ${formatDate(end)} ${endTimeStr}`;
 }
 
+function updateCalendarSelect(events) {
+  const select = document.getElementById('calendar-select');
+  if (!select) return;
+
+  const currentVal = select.value;
+  const calendarMap = new Map();
+
+  events.forEach((evt) => {
+    const key = evt.calendarId || evt.calendarName;
+    if (key && !calendarMap.has(key)) {
+      calendarMap.set(key, evt.calendarName || evt.calendarId);
+    }
+  });
+
+  const options = [['option', { value: '' }, 'All Calendars']];
+  for (const [key, label] of calendarMap.entries()) {
+    options.push(['option', { value: key }, label]);
+  }
+
+  e('calendar-select', {}, options);
+  if (calendarMap.has(currentVal)) {
+    select.value = currentVal;
+    selectedCalendar = currentVal;
+  } else {
+    select.value = '';
+    selectedCalendar = '';
+  }
+}
+
 function renderEvents() {
   const filtered = allEvents.filter((evt) => {
-    if (!searchFilter) return true;
-    const q = searchFilter.toLowerCase();
-    return (
-      (evt.name && evt.name.toLowerCase().includes(q)) ||
-      (evt.description && evt.description.toLowerCase().includes(q))
-    );
+    if (selectedCalendar) {
+      const calKey = evt.calendarId || evt.calendarName;
+      if (calKey !== selectedCalendar) return false;
+    }
+    if (searchFilter) {
+      const q = searchFilter.toLowerCase();
+      const matchName = evt.name && evt.name.toLowerCase().includes(q);
+      const matchDesc =
+        evt.description && evt.description.toLowerCase().includes(q);
+      const matchCal =
+        (evt.calendarName && evt.calendarName.toLowerCase().includes(q)) ||
+        (evt.calendarId && evt.calendarId.toLowerCase().includes(q));
+      if (!matchName && !matchDesc && !matchCal) return false;
+    }
+    return true;
   });
 
   const badge = document.getElementById('badge-events-count');
@@ -105,7 +163,7 @@ function renderEvents() {
           [
             'td',
             {
-              colspan: '2',
+              colspan: '3',
               class: 'uk-text-center uk-text-muted uk-padding empty-table-cell',
             },
             msg,
@@ -117,6 +175,8 @@ function renderEvents() {
   }
 
   const rows = filtered.map((event) => {
+    const calendarDisplay =
+      event.calendarName || event.calendarId || 'Calendar';
     const eventDetails = [
       ['div', { class: 'event-title' }, event.name || 'Untitled Event'],
     ];
@@ -129,6 +189,20 @@ function renderEvents() {
       { class: 'event-row' },
       [
         ['td', { class: 'event-time-cell' }, formatEventDateTime(event)],
+        [
+          'td',
+          { class: 'event-source-cell' },
+          [
+            [
+              'span',
+              {
+                class: getCalendarTagClass(calendarDisplay),
+                title: event.calendarId || calendarDisplay,
+              },
+              calendarDisplay,
+            ],
+          ],
+        ],
         ['td', {}, eventDetails],
       ],
     ];
@@ -161,9 +235,12 @@ async function loadEvents() {
         endTime: event.endTime,
         name: event.name,
         description: event.description,
+        calendarId: event.calendarId,
+        calendarName: event.calendarName,
       }))
       .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
+    updateCalendarSelect(allEvents);
     renderEvents();
 
     if (statusEl) {
@@ -269,6 +346,14 @@ function init() {
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
     searchInput.addEventListener('input', handleSearchInput);
+  }
+
+  const calSelect = document.getElementById('calendar-select');
+  if (calSelect) {
+    calSelect.addEventListener('change', (evt) => {
+      selectedCalendar = evt.target.value;
+      renderEvents();
+    });
   }
 
   loadEvents();
