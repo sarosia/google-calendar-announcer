@@ -1,101 +1,10 @@
 import e from './e.js';
+import { formatEventDateTime, getTagClass } from './apper-ui.js';
 
 let allEvents = [];
 let searchFilter = '';
 let selectedCalendar = '';
 let debounceTimer = null;
-
-const CALENDAR_COLORS = [
-  'source-tag-blue',
-  'source-tag-green',
-  'source-tag-purple',
-  'source-tag-amber',
-  'source-tag-rose',
-];
-
-function getCalendarTagClass(name) {
-  if (!name) return 'source-tag source-tag-default';
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = (hash << 5) - hash + name.charCodeAt(i);
-    hash |= 0;
-  }
-  const idx = Math.abs(hash) % CALENDAR_COLORS.length;
-  return `source-tag ${CALENDAR_COLORS[idx]}`;
-}
-
-function formatDate(d, includeYear = false) {
-  const options = {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  };
-  if (includeYear) {
-    options.year = 'numeric';
-  }
-  return d.toLocaleDateString(undefined, options);
-}
-
-function formatEventDateTime(event) {
-  const start = new Date(event.startTime);
-  const end = new Date(event.endTime);
-
-  if (isNaN(start.getTime())) {
-    return `${event.startTime} - ${event.endTime}`;
-  }
-
-  const startMidnight =
-    start.getHours() === 0 &&
-    start.getMinutes() === 0 &&
-    start.getSeconds() === 0;
-  const endMidnight =
-    end.getHours() === 0 && end.getMinutes() === 0 && end.getSeconds() === 0;
-
-  const allDay =
-    startMidnight && (endMidnight || end.getTime() === start.getTime());
-
-  if (allDay) {
-    let inclusiveEnd = new Date(end);
-    if (end.getTime() > start.getTime()) {
-      inclusiveEnd = new Date(end.getTime() - 1000);
-    }
-    const sameDay =
-      start.getFullYear() === inclusiveEnd.getFullYear() &&
-      start.getMonth() === inclusiveEnd.getMonth() &&
-      start.getDate() === inclusiveEnd.getDate();
-
-    if (sameDay) {
-      return formatDate(start);
-    }
-    const diffYears = start.getFullYear() !== inclusiveEnd.getFullYear();
-    return `${formatDate(start, diffYears)} - ${formatDate(
-      inclusiveEnd,
-      diffYears
-    )}`;
-  }
-
-  const dateStr = formatDate(start);
-  const startTimeStr = start.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  const endTimeStr = !isNaN(end.getTime())
-    ? end.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : '';
-
-  const sameDay =
-    start.getFullYear() === end.getFullYear() &&
-    start.getMonth() === end.getMonth() &&
-    start.getDate() === end.getDate();
-
-  if (sameDay) {
-    return `${dateStr} ${startTimeStr} - ${endTimeStr}`;
-  }
-  return `${dateStr} ${startTimeStr} - ${formatDate(end)} ${endTimeStr}`;
-}
 
 function updateCalendarSelect(events) {
   const select = document.getElementById('calendar-select');
@@ -196,7 +105,7 @@ function renderEvents() {
             [
               'span',
               {
-                class: getCalendarTagClass(calendarDisplay),
+                class: getTagClass(calendarDisplay),
                 title: event.calendarId || calendarDisplay,
               },
               calendarDisplay,
